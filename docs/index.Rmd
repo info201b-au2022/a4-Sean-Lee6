@@ -1,45 +1,66 @@
 ---
-title: "Your A4 Report Title (TODO: Revise title)"
-author: "Your Name"
+title: "The US Justice System and Incarceration"
+author: "Sean Lee"
 date: '2022-11-01'
 output: html_document
 ---
 
 ```{r echo=FALSE, eval=TRUE, message=FALSE}
-source("../source/a4-helpers.R")
-source("../source/analysis.R")
+source("../source/a4-helpers.R",local = knitr::knit_global())
+source("../source/analysis.R",local = knitr::knit_global())
 ```
 
-## Abstract 
-[TODO: Include a short abstract (about 50 words)]
+## Abstract
+Incarceration has been a huge issue in the United States, with one of the issues being the disproportionate number of people of color being incarcerated. For my report, I will create visualizations regarding the incarceration rates in the United States, and analyze the differences for imprisonment by race.
 
-# Test (TODO: Remove before submission!!)
-```{r echo=FALSE}
-q1_string <- test_query1()
-num <- 5
+
+## Introduction
+In America, mass incarceration has become an important issue, as incarceration rates have increased drastically over the past few decades. One aspect of this issue deals with how maxx incarceration intersects with institutional racism. Institutional racism has been rooted in the United States, with a major component of institutional racism being disproportionate incarceration of minorities in the United States. Laws such as the ones implemented during the War on Drugs and other instances of stronger law enforcement (such as the Three Strikes Law in the late 1990's) supported the Structural and Disciplinary domains of the Matrix of Domination, as whether intentionally or unintentionally, they organized and enforced policies that punished people of color (such as African American, Hispanic, Native American) on a much higher rate compared to white people.
+
+The data set collected by Vera Institute records the number of people incarcerated in each county, per race, and per year, as well as other statistics. The direct stakeholders are the users of the data set, as they can use it to create visualizations, as well as analyze certain aspects of the data set to answer questions regarding incarceration rates in America. The indirect stakeholders are the inmates who have been counted in the data set. By having a data set representing them and the amount of inmates that were in each county, the data set brings more visibility to the issues of the US Justice System. The central issues we need to engage with are the values of justice and fairness. We will analyze how the current system promotes inequity, which may hint at the things we need to do to dismantle and reform the system to be fair for all people.
+
+The questions we will ask are:
+
+# DON'T FORGET THIS
+
+1.  
+2.
+3.
+
+## Data Summary
+My key variable that I'm analyzing is how disproportionate the incarceration rates are between African Americans and White Americans. To do this, I will need three values: the percent of black inmates relative to the total black population, the same percentage but for white people, and then their ratio. To complement this, I will also compare the prisons with the highest percentages of black and white inmates relative to their populations. Note that the inmate count may include people over the age of 64 that might not be accounted for in the 14 to 64 year old population. This may lead to percentages over 100%.
+
+My first value of interest is the percentage of black inmates to the total population of black people between the ages of 15 to 64 in terms of the most recent year in my data set. I found that **`r values$avg_black_perc`%** of African Americans are incarcerated compared to the total number of African Americans in the US between the ages of 15 to 64 as of the year **`r most_recent_year`**. To compare this with White Americans, my second value of interest is the percentage of white inmates to the total population of white people between the ages of 15 to 64 in terms of the most recent year available in my data set. I found that **`r values$avg_white_perc`%** of White Americans are incarcerated to the total number of White Americans in the US between the ages of 15 to 64 as of the year **`r most_recent_year`**. These two values are useful because they are needed to answer the question: what is the extent of the dis-proportionality of incarceration rates between African Americans and White Americans?
+
+Finally, to summarize our variable, we use our third value of interest. I found that the percent of African Americans incarcerated relative to the black population between 15 to 64 years old is about **`r values$ratio`** times the percent of White Americans.
+
+This variable is important to us, because our goal in this report is to study and analyze how oppression interacts with the US Justice System. Our variable describes the extent of the oppression, as while African Americans are a racial minority, they still have about **`r values$ratio`** times the incarceration rate, which highlights the pattern of disproportional incarceration rate of people by race.
+
+Other things to look into are: the county with the highest percent of black inmates per black population between 15 to 64 year old is **`r values$highest_black_perc_where`** with a percentage of **`r values$highest_black_perc`**. The county with the highest percent of white inmates per white population between the ages of 15 to 64 years old is **`r values$highest_white_perc_where`** with a percentage of **`r values$highest_white_perc`**. The difference between the percentages is **`r values$highest_diff`**. This again reflects the wide disparity in incarceration rates between the two races.
+
+## Growth of the US Prison Population
+```{r echo = FALSE, eval = TRUE, message = FALSE}
+plot_jail_pop_for_us()
 ```
-As you know, this is a markdown report. The [R Markdown Cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf) is **useful!**
 
-* Here's a test of a dynamic variable. Say **"`r q1_string`!!!** 
-* Here's another test. A vector
-of numbers: `r test_query2(num)`.
+Note: Because the functions are named with "jail", I will be using the jail populations.
 
-Recall that _{r echo=TRUE}_ can be used to display the code, 
-which is very useful when developing and debugging a report. Here's an example: 
+We present this section with a question: How has the jail population in the United States changed between the years of 1970 and 2018? The chart shows a significant increase in the total jail population, as the total jail population in the 1970's were around less than 200,000 inmates, while the total jail population in the 2010's were around **over 700,000 inmates**, which shows an increase in jail of population by a factor of more than three. This reflects the pattern of policies supporting mass incarcerations, as we see a significant increase in the rate of change of the jail population starting at around the 1980's, where most of the laws that support over-policing started in the 1980's and 1990's. The difference in the jail population between the years 1970 and 1980 is less than 50,000 whereas the difference in the jail population between the years 1980 and 1990 is **about 200,000**. This rate continues for the difference between the years 1990 and 2000, correlating with the implementation of laws such as the Three Strikes Law and the War on Drugs. 
 
-```{r echo=TRUE}
-num <- 5
-sum <- sum(test_query2(num))
-print(sum)
+A possible confounding variable could be the increase in the total population of the United States in general, but more analysis needs to be done to determine for what extent this plays a role in the increase of the total jail population increase rate in the late 20-th century.
+
+## Growth of the US Prison Population by State
+```{r echo = FALSE, eval = TRUE, message = FALSE}
+plot_jail_pop_by_states(c("NY", "CA", "TX", "FL"))
 ```
 
-## Introduction 
-[TODO]
+We now compare the total jail population growths between four states: New York, California, Texas, and Florida to analyze the question: How does jail population growth differ between liberal states and conservative states? This question is asked in order to see if the political climate of the state affects the incarceration rates of the state. I chose New York, Florida, California, and Texas as my states because I wanted to compare "liberal" states with "conservative" states with around the same population (NY with FL, CA with TX). We see a similar growth rate in jail population between California and Texas. Florida had a significant growth in their jail population, whereas New York has a much less growth rate. A key pattern we see in all four states is a significant increase in the jail population in the late 20-th century, with California, Texas, and Florida in particular having a jail population in 2018 being about four times the their jail population in 1970.
 
-## Data Summary 
-[TODO]
+## Black Inmate Populations are Similar to White Inmate Populations,
+## Despite the US having Five Times The White People to Black
+```{r echo = FALSE, eval = TRUE, message = FALSE}
+plot_jail_black_county()
+plot_jail_white_county()
+```
 
-[TODO ... other sections ... See Canvas for details]
-
-_All the very best with your work!_
-
+For this section, we now ask a few questions: How has the Black Inmate and White Inmate Population change over time? Does the population of the county affect the inmate population change? Here, we assess two major continuous variables: Black Inmate Population vs White Inmate Population over time. We then factor by County Population (Less than 25,000, between 25,000 and 100,000, and more than 100,000 people) to see if it affects the relationship. We first see that with exceptions to the outliers in the larger counties, the populations between Black Inmates and White Inmates are similar throughout the years. This actually shows a pattern in disproportionate incarceration: [according to the US Census Bureau, as of 2020, there are more than five times as many white people as there a black people](https://www.census.gov/quickfacts/fact/table/US/RHI225221#RHI225221). Yet the black inmate population is about the same in terms of absolute number of inmates as the white inmate population. Even more surprising is that for the counties with populations larger than 100,000, the black inmate population's outliers are much higher than the white inmate population's outliers. We see that the outlier with the highest number of black inmates is over 35,000 black inmates, whereas the outlier for the highest number of white inmates is a little over 15,000. This shows how there exists counties in the United States where the black inmate population is much higher than the white inmate population. 
