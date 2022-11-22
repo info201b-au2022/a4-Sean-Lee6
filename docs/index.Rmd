@@ -5,7 +5,7 @@ date: '2022-11-01'
 output: html_document
 ---
 
-```{r echo=FALSE, eval=TRUE, message=FALSE}
+```{r setup, echo=FALSE, eval=TRUE, message=FALSE, warnings = FALSE}
 source("../source/a4-helpers.R",local = knitr::knit_global())
 source("../source/analysis.R",local = knitr::knit_global())
 ```
@@ -15,17 +15,15 @@ Incarceration has been a huge issue in the United States, with one of the issues
 
 
 ## Introduction
-In America, mass incarceration has become an important issue, as incarceration rates have increased drastically over the past few decades. One aspect of this issue deals with how maxx incarceration intersects with institutional racism. Institutional racism has been rooted in the United States, with a major component of institutional racism being disproportionate incarceration of minorities in the United States. Laws such as the ones implemented during the War on Drugs and other instances of stronger law enforcement (such as the Three Strikes Law in the late 1990's) supported the Structural and Disciplinary domains of the Matrix of Domination, as whether intentionally or unintentionally, they organized and enforced policies that punished people of color (such as African American, Hispanic, Native American) on a much higher rate compared to white people.
+In America, mass incarceration has become an important issue, as incarceration rates have increased drastically over the past few decades. One aspect of this issue deals with how max incarceration intersects with institutional racism. Institutional racism has been rooted in the United States, with a major component of institutional racism being disproportionate incarceration of minorities in the United States. Laws such as the ones implemented during the War on Drugs and other instances of stronger law enforcement (such as the Three Strikes Law in the late 1990's) supported the Structural and Disciplinary domains of the Matrix of Domination, as whether intentionally or unintentionally, they organized and enforced policies that punished people of color (such as African American, Hispanic, Native American) on a much higher rate compared to white people.
 
 The data set collected by Vera Institute records the number of people incarcerated in each county, per race, and per year, as well as other statistics. The direct stakeholders are the users of the data set, as they can use it to create visualizations, as well as analyze certain aspects of the data set to answer questions regarding incarceration rates in America. The indirect stakeholders are the inmates who have been counted in the data set. By having a data set representing them and the amount of inmates that were in each county, the data set brings more visibility to the issues of the US Justice System. The central issues we need to engage with are the values of justice and fairness. We will analyze how the current system promotes inequity, which may hint at the things we need to do to dismantle and reform the system to be fair for all people.
 
-The questions we will ask are:
+Thus, the questions we will ask are:
 
-# DON'T FORGET THIS
-
-1.  
-2.
-3.
+1. How has the jail population in the United States changed between the years of 1970 and 2018?  
+2. How has the Black Inmate and White Inmate Population change over time? Does the population of the county affect the inmate population change?
+3. Does the region influence the percentage of Latinx jail inmates relative to the Latinx Population?
 
 ## Data Summary
 My key variable that I'm analyzing is how disproportionate the incarceration rates are between African Americans and White Americans. To do this, I will need three values: the percent of black inmates relative to the total black population, the same percentage but for white people, and then their ratio. To complement this, I will also compare the prisons with the highest percentages of black and white inmates relative to their populations. Note that the inmate count may include people over the age of 64 that might not be accounted for in the 14 to 64 year old population. This may lead to percentages over 100%.
@@ -65,4 +63,27 @@ plot_jail_white_county()
 
 For this section, we now ask a few questions: How has the Black Inmate and White Inmate Population change over time? Does the population of the county affect the inmate population change? Here, we assess two major continuous variables: Black Inmate Population vs White Inmate Population over time. We then factor by County Population (Less than 25,000, between 25,000 and 100,000, and more than 100,000 people) to see if it affects the relationship. We first see that with exceptions to the outliers in the larger counties, the populations between Black Inmates and White Inmates are similar throughout the years. This actually shows a pattern in disproportionate incarceration: [according to the US Census Bureau, as of 2020, there are more than five times as many white people as there a black people](https://www.census.gov/quickfacts/fact/table/US/RHI225221#RHI225221). Yet the black inmate population is about the same in terms of absolute number of inmates as the white inmate population. Even more surprising is that for the counties with populations larger than 100,000, the black inmate population's outliers are much higher than the white inmate population's outliers. We see that the outlier with the highest number of black inmates is over 35,000 black inmates, whereas the outlier for the highest number of white inmates is a little over 15,000. This shows how there exists counties in the United States where the black inmate population is much higher than the white inmate population. 
 
+## Midwest and Southern Regions contain states with Higher Average Percentage
+## of Latinx Jail Inmates per County Latinx Population
 
+In this final section, we want to see how the percentage of Latinx Jail Inmates per County Latinx population is distributed by states and regions. We provide two graphs: One with data for each county, and one that takes the average of each county in a state. Both charts will be as of the most recent year of the dataframe, which is 2018. Note that six states do not contain data on both the Latinx jail population and Latinx population between 15 to 64 years old for the year 2018: Alaska, Conneticut, Delaware, Rhode Island, Vermont, and Hawaii.
+
+Note that because the total Latinx population is only considering the ages of 15 to 64, there may be more Latinx jail inmates (possible outside of the age range) than there are the total Latinx population within those ranges. Thus, we may see percentages that exceed 100%.
+
+```{r echo = FALSE, eval = TRUE, message = FALSE, fig.width=12,fig.height=11}
+get_county_map_chart()
+```
+
+Most of the county percentages are very small. The Eastern region doesn't seem to have any high percentages (we will discuss caveats later). However, in the west, we see states with a few outliers such as in the state of Utah, Montana, and Colorado. The Midwest has more counties with Latinx jail inmate to population percentages that are higher than approximately 30%. The Southern states have notable outliers as well, with Texas, Louisiana, and Georgia having counties with Latinx jail inmate to population percentages that are higher than approximately 30%. Georgia in particular has a county with a percent that looks to be between 200 to 250%, suggesting that there are about two times the number of Latinx jail inmates compared to the Latinx population between the ages of 15 and 64.
+
+Thus, with our first chart, our pattern of inequality is with regards to regional differences in Latinx incarceration rates. We suspect that the Midwestern Regions and Southern Regions may have more counties with higher percentages of Latinx jail inmates relative to the Latinx population between 15 to 64 year olds. This leads to our question for section 6: **Question: Does the region influence the percentage of Latinx jail inmates relative to the Latinx Population?**
+
+```{r echo = FALSE, eval = TRUE, message = FALSE, fig.width=12,fig.height=11}
+get_state_map_chart()
+```
+
+In this chart, we now see a notable difference in the percent of Latinx jail inmates per region. With the exception of the state of Utah, we make an inference that the Midwestern and Southern Regions may have higher average percentages of Latinx jail inmates relative to their respective county Latinx Populations between 15 and 64, compared to other regions. 
+
+It is important to discuss the caveats with this section. First, I think that using the Latinx Population between 15 and 64 is not the best choice, since I was originally looking for the entire racial population. I think a fix to this would be to download the US Census data for this and get the racial population data for each county in order to get a better estimate. 
+
+Another caveat is that the Eastern Region does not contain data for three states. I filtered all of the missing data first, but this meant that six states either did not have any data at all for the Latinx variables, or their most recent data is before 2018. I decided to use the most recent data of 2018 to get the most recent data regardless, but as a result we must proceed with caution with the Eastern Region of our data.

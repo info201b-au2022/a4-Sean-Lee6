@@ -1,9 +1,7 @@
 library(tidyverse)
 library(maps)
 source("../source/a4-helpers.R")
-library(mapproj)
 library(R.utils)
-library(usmap)
 #Our Data frame
 jail <- read.csv("../data/incarceration_trends.csv")
 
@@ -261,6 +259,17 @@ factored by the population of the county. "
 #----------------------------------------------------------------------------#
 
 ## Load data frames for mapping:
+
+#Map codes give us the abbreviation for states. We need them because 
+#map_data("county") doesn't have them, but our jail data only has abbreviations.
+#So before getting our dataframes, let's make this function to get state codes!
+get_codes <- function(){
+  map_codes <- read.csv("../source/state_names_and_codes.csv") %>%
+    rename(state = State)
+  map_codes$state <- str_to_lower(map_codes$state)
+  return(map_codes)
+}
+
 #We'll need county long and lat data
 county_locations <- map_data("county") %>%
   rename(state = region, county = subregion) %>%
@@ -269,15 +278,6 @@ county_locations <- map_data("county") %>%
   summarize(long = mean(long), lat = mean(lat), Code) %>%
   unique()
 
-
-#Map codes give us the abbreviation for states. We need them because 
-#map_data("county") doesn't have them, but our jail data only has abbreviations.
-get_codes <- function(){
-  map_codes <- read.csv("../source/state_names_and_codes.csv") %>%
-    rename(state = State)
-  map_codes$state <- str_to_lower(map_codes$state)
-  return(map_codes)
-}
 
 #Dataframe for latinx jail percentages per county
 get_county_map_data_frame <- function() {
@@ -316,13 +316,13 @@ get_state_map_data_frame <- function() {
   jail_state_map_data <- get_county_map_data_frame() %>%
     group_by(state) %>%
     summarize(latinx_jail_perc = mean(latinx_jail_perc, na.rm = TRUE), 
-              year, region) %>%
+              year, region, division) %>%
           unique() %>%
     
           #map_data actually refers to states as regions, so
           #we must rename our actual regions to actual_region
           rename(actual_region = region, region = state) %>%
-                      select(actual_region, region, latinx_jail_perc) %>%
+                      select(actual_region, region, division, latinx_jail_perc) %>%
                       unique() %>%
                       inner_join(map_data("state"))
   return(jail_state_map_data)
@@ -339,8 +339,12 @@ get_county_map_chart <- function() {
                  size = .1) +
     geom_point(data = get_county_map_data_frame(),
                aes(x = long, y = lat,
-                   color = region,
-                   size = latinx_jail_perc)) +
+                   color = region, fill = region,
+                   size = latinx_jail_perc),
+#I learned about pch and color around the circle,
+#which gives a black border around each circle,
+#from: https://stackoverflow.com/questions/10437442/place-a-border-around-points
+               pch=21, color = "black") +
     coord_map() +
     
   #As required, we use a minimalist theme here. I will use the
@@ -355,7 +359,14 @@ get_county_map_chart <- function() {
       panel.grid.major = element_blank(), # remove major grid lines
       panel.grid.minor = element_blank(), # remove minor grid lines
       panel.border = element_blank() # remove border around plot
-    )
+    ) +
+labs(subtitle = "Percent of Latinx Jail Inmates to Latinx Population",
+     size = "% of Latinx Jail Inmates to Latinx Population
+              Ages 15 to 64",
+     fill = "Region",
+     caption = "Figure 4. Map of the US with each county containing the percentage of 
+     Latinx jail inmates relative to the Latinx Population in the county ages 15 to 64."
+         )
   return(map_chart)
 }
 
@@ -368,10 +379,14 @@ get_state_map_chart <- function() {
                                  color = actual_region,
                                  fill = latinx_jail_perc),
                                   size = 1.25) +
-    scale_fill_continuous(low = "white", high = "black") +
-          labs(fill = "Percent of Latinx in Jail
-               Per County Latinx Population",
-               color = "Regions") +
+    scale_fill_continuous(low = "white", high = "firebrick") +
+          labs(subtitle = "Average Percent of Latinx Jail Inmate to Latinx Population Per State",
+          fill = "Mean % of Latinx in Jail Per County Latinx Population
+          Ages 15 to 64",
+               color = "Divisions",
+          caption = "Figure 5. Map of the US with the percent of Latinx Jail Inmate relative to the Latinx population per state. 
+          The percentages of every county in the state are averaged so each state has one average percent."
+          ) +
       theme_bw() +
       theme(
       axis.line = element_blank(), # remove axis lines
