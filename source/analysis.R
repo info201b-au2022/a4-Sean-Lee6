@@ -332,6 +332,7 @@ get_state_map_data_frame <- function() {
 
 #Function for showing latinx jail percentages by county
 get_county_map_chart <- function() {
+  #We call the data wrangling function in geom_polygon
   map_chart <- ggplot(map_data("state")) +
     geom_polygon(mapping = aes(long, lat, group = group),
                  color = "white",
