@@ -1,8 +1,12 @@
 library(tidyverse)
 library(maps)
 source("../source/a4-helpers.R")
-
+library(mapproj)
+library(R.utils)
+library(usmap)
+#Our Data frame
 jail <- read.csv("../data/incarceration_trends.csv")
+
 ## Test queries ----
 #----------------------------------------------------------------------------#
 # Simple queries for basic testing
@@ -257,23 +261,127 @@ factored by the population of the county. "
 #----------------------------------------------------------------------------#
 
 ## Load data frames for mapping:
+#We'll need county long and lat data
+county_locations <- map_data("county") %>%
+  rename(state = region, county = subregion) %>%
+  inner_join(get_codes(), by = "state") %>%
+  group_by(state, county) %>%
+  summarize(long = mean(long), lat = mean(lat), Code) %>%
+  unique()
+
 
 #Map codes give us the abbreviation for states. We need them because 
 #map_data("county") doesn't have them, but our jail data only has abbreviations.
-map_codes <- read.csv("../source/state_names_and_codes.csv") %>%
-             rename(state = State)
-map_codes$state <- str_to_lower(map_codes$state)
+get_codes <- function(){
+  map_codes <- read.csv("../source/state_names_and_codes.csv") %>%
+    rename(state = State)
+  map_codes$state <- str_to_lower(map_codes$state)
+  return(map_codes)
+}
 
-#Dataframe with county long and lat data needed for creating maps.
-county_locations <- map_data("county") %>%
-                    rename(state = region, county = subregion) %>%
-                    inner_join(map_codes, by = "state") %>%
-                    group_by(state, county) %>%
-                    summarize(long = mean(long), lat = mean(lat), Code) %>%
-                    unique()
+#Dataframe for latinx jail percentages per county
+get_county_map_data_frame <- function() {
+  
+  #Filter our datafraame for joining map data
+  jail_county_map_data <- jail %>% mutate(county = str_to_lower(
+    
+    #We also need to str_replace Louisiana since they don't use Counties
+    str_replace(str_replace(county_name, " County", ""), " Parish", ""))) %>%
+    rename(Code = state) %>%
+    
+    #Filter missing data for our variables of interest
+    
+    #Note: States like Rhode Island DO NOT have any data for latinx_jail_pop
+    filter(!is.na(latinx_jail_pop)) %>%
+    filter(!is.na(latinx_pop_15to64)) %>%
+    
+    #I found the isZero function from:
+    #https://www.rdocumentation.org/packages/R.utils/versions/2.7.0/topics/isZero
+    filter(!isZero(latinx_pop_15to64)) %>%
+    #Mutate for the latinx proportion variable
+    mutate(latinx_jail_perc = latinx_jail_pop / latinx_pop_15to64 * 100) %>%
+    
+    #Now join with our county locations.
+    inner_join(county_locations, by = c("county","Code")) %>%
+    
+    #filter for max year given our previous operations
+    filter(year == max(year))
+  return(jail_county_map_data)
+}
 
-#Filter our dataframe for joining map data
-jail_map_data <- jail %>% mutate(county = str_to_lower(str_replace(county_name, " County", ""))) %>%
-                          rename(Code = state) %>%
-                  
-                  inner_join(county_locations, by = c("county","Code"))
+#Dataframe for latinx jail percentages per state
+get_state_map_data_frame <- function() {
+
+  #Use the filters given to us previously
+  jail_state_map_data <- get_county_map_data_frame() %>%
+    group_by(state) %>%
+    summarize(latinx_jail_perc = mean(latinx_jail_perc, na.rm = TRUE), 
+              year, region) %>%
+          unique() %>%
+    
+          #map_data actually refers to states as regions, so
+          #we must rename our actual regions to actual_region
+          rename(actual_region = region, region = state) %>%
+                      select(actual_region, region, latinx_jail_perc) %>%
+                      unique() %>%
+                      inner_join(map_data("state"))
+  return(jail_state_map_data)
+}
+
+
+#Make the Visualizations:
+
+#Function for showing latinx jail percentages by county
+get_county_map_chart <- function() {
+  map_chart <- ggplot(map_data("state")) +
+    geom_polygon(mapping = aes(long, lat, group = group),
+                 color = "white",
+                 size = .1) +
+    geom_point(data = get_county_map_data_frame(),
+               aes(x = long, y = lat,
+                   color = region,
+                   size = latinx_jail_perc)) +
+    coord_map() +
+    
+  #As required, we use a minimalist theme here. I will use the
+  #minimalist theme as mentioned in the textbook
+  theme_bw() +
+    theme(
+      axis.line = element_blank(), # remove axis lines
+      axis.text = element_blank(), # remove axis labels
+      axis.ticks = element_blank(), # remove axis ticks
+      axis.title = element_blank(), # remove axis titles
+      plot.background = element_blank(), # remove gray background
+      panel.grid.major = element_blank(), # remove major grid lines
+      panel.grid.minor = element_blank(), # remove minor grid lines
+      panel.border = element_blank() # remove border around plot
+    )
+  return(map_chart)
+}
+
+#Function for showing latinx jail percentages by state
+get_state_map_chart <- function() {
+  map_chart <- ggplot(get_state_map_data_frame()) +
+              
+      coord_map() +
+      geom_polygon(mapping = aes(x=long, y = lat, group = group, 
+                                 color = actual_region,
+                                 fill = latinx_jail_perc),
+                                  size = 1.25) +
+    scale_fill_continuous(low = "white", high = "black") +
+          labs(fill = "Percent of Latinx in Jail
+               Per County Latinx Population",
+               color = "Regions") +
+      theme_bw() +
+      theme(
+      axis.line = element_blank(), # remove axis lines
+      axis.text = element_blank(), # remove axis labels
+      axis.ticks = element_blank(), # remove axis ticks
+      axis.title = element_blank(), # remove axis titles
+      plot.background = element_blank(), # remove gray background
+      panel.grid.major = element_blank(), # remove major grid lines
+      panel.grid.minor = element_blank(), # remove minor grid lines
+      panel.border = element_blank() # remove border around plot
+      )
+  return(map_chart)
+}

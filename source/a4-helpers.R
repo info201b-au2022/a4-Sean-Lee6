@@ -12,14 +12,14 @@ get_data <- function(num_records=-1) {
 }
 
 # Processing places ----
-# NOTE: For these functions to work, the dataframe `incarceration_df` must 
+# NOTE: For these functions to work, the dataframe `jail` must 
 #       be initialized
 #----------------------------------------------------------------------------#
 # Return the list of states in a region.  The regions are: 
 #    Midwest, Northeast, South, West
 #----------------------------------------------------------------------------#
 states_in_region <- function(p_region) {
-  the_states <- incarceration_df %>%
+  the_states <- jail %>%
     filter(region == p_region) %>%
     distinct(state) %>%
     pull(state)
@@ -31,7 +31,7 @@ states_in_region <- function(p_region) {
 # Midwest, Northeast, South, West
 #----------------------------------------------------------------------------#
 divisions_in_region <- function(p_region) {
-  the_divisions <- incarceration_df %>%
+  the_divisions <- jail %>%
     filter(region == p_region) %>%
     distinct(division) %>%
     pull(division)
@@ -51,7 +51,7 @@ divisions_in_region <- function(p_region) {
 #    West South Central
 #----------------------------------------------------------------------------#
 states_in_division <- function(p_division) {
-  the_states <- incarceration_df %>%
+  the_states <- jail %>%
     filter(division == p_division) %>%
     distinct(state) %>%
     pull(state)
@@ -62,7 +62,7 @@ states_in_division <- function(p_division) {
 # Returns TRUE if the place is a state 
 #----------------------------------------------------------------------------#
 is_state <- function(p_place) {
-  the_states <- incarceration_df %>%
+  the_states <- jail %>%
     filter(state == p_place) %>%
     distinct(state) %>%
     pull(state)
@@ -101,7 +101,7 @@ states_in_region_or_division <- function(place) {
 # Do some states have no jail populations? If so, which states?
 #----------------------------------------------------------------------------#
 states_with_no_jail_pop <- function(df) {
-  t <- incarceration_df %>%
+  t <- jail %>%
     group_by(state) %>%
     summarise(p = sum(total_jail_pop, na.rm = TRUE)) %>%
     filter(p == 0) %>%
@@ -149,8 +149,8 @@ get_basic_info <- function(df) {
 # Basic tests of the helper functions
 # Comment or uncomment 
 #----------------------------------------------------------------------------#
-# ## Very important: You must initialize `incarceration_df`
-# incarceration_df <- get_data()
+# ## Very important: You must initialize `jail`
+# jail <- get_data()
 # 
 # ## Demonstrate use of the functions
 # ## Each of these functions returns a vector of states
@@ -164,7 +164,7 @@ get_basic_info <- function(df) {
 # divisions_in_region("West")
 # 
 # ## Returns basic information about the dataset
-# get_basic_info(incarceration_df)
+# get_basic_info(jail)
 # 
 # ## 
 # states_with_no_jail_pop()
