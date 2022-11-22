@@ -4,8 +4,11 @@ author: "Sean Lee"
 date: '2022-11-01'
 output: html_document
 ---
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
 
-```{r setup, echo=FALSE, eval=TRUE, message=FALSE, warnings = FALSE}
+```{r echo=FALSE, eval=TRUE, message=FALSE, warnings = FALSE}
 source("../source/a4-helpers.R",local = knitr::knit_global())
 source("../source/analysis.R",local = knitr::knit_global())
 ```
