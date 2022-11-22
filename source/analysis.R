@@ -26,19 +26,20 @@ test_query2 <- function(num = 6) {
 # Filter jail data for most recent year. We want to filter out missing data
 # for prison and jail populations for white and black people
 jail_recent <- filter(jail, !is.na(black_prison_pop)) %>%
-  
+
   #Filtering missing entries
   filter(!is.na(white_prison_pop)) %>%
   filter(!is.na(black_jail_pop)) %>%
   filter(!is.na(white_jail_pop)) %>%
   filter(!is.na(black_pop_15to64)) %>%
   filter(!is.na(white_pop_15to64)) %>%
-  
+
   #Filter for max year given the previous missing values are filtered
   filter(year == max(year)) %>%
   mutate(
     black_percent =
-      (black_jail_pop + black_prison_pop) / black_pop_15to64 * 100, white_percent =
+      (black_jail_pop + black_prison_pop) / black_pop_15to64 * 100,
+    white_percent =
       (white_jail_pop + white_prison_pop) / white_pop_15to64 * 100
   ) %>%
   mutate(location = paste0(county_name, ", ", state))
@@ -96,14 +97,14 @@ values$highest_diff <- values$highest_black_perc - values$highest_white_perc
 #----------------------------------------------------------------------------#
 # This function makes a data frame suitable for creating the visualization
 get_year_jail_pop <- function() {
-  
+
   #First filter missing total jail population entries
   jail_viz_data <- filter(jail, !is.na(total_jail_pop)) %>%
-    
+
     #group by year
     group_by(year) %>%
-    
-    #Add populations 
+
+    #Add populations
     summarize(total_jail_pop = sum(total_jail_pop))
   return(jail_viz_data)
 }
@@ -125,7 +126,7 @@ plot_jail_pop_for_us <- function() {
       caption = "Figure 1. Chart of the total jail populations between the years 1970 to 2018.
       This shows an increase of the jail population by almost four times in the span of almost five decades."
     )
-  
+
   return(jail_pop_bar_chart)
 }
 
@@ -136,25 +137,25 @@ plot_jail_pop_for_us <- function() {
 # The following functions help make a visualization for the growth of the
 # jail populations by state
 #----------------------------------------------------------------------------#
-#This function returns us a data frame of 
+#This function returns us a data frame of
 #the jail population given a vector of states we are interested in.
 get_jail_pop_by_states <- function(states) {
   jail_state_pop_data <- filter(jail, !is.na(total_jail_pop)) %>%
-    
-                        #%in% tells if first argument is contained within 
+
+                        #%in% tells if first argument is contained within
                         #second argument.
                   #Source: https://www.programmingr.com/tutorial/in-operator/
                         filter(state %in% states) %>%
-                        
+
                         #Group by year
                         group_by(year, state) %>%
-                      
+
                         #Sum the total jail population by year and state
                         summarize(total_jail_pop = sum(total_jail_pop))
                         return(jail_state_pop_data)
 }
 
-#This function produces the chart for the total jail populations 
+#This function produces the chart for the total jail populations
 #given the states of interests
 plot_jail_pop_by_states <- function(states) {
   jail_state_pop_chart <- ggplot(
@@ -175,36 +176,36 @@ caption = "Figure 2. Chart of the total jail populations between the years 1970 
 
 ## Section 5  ----
 #----------------------------------------------------------------------------#
-# In this section, the following functions serve to ultimately create a 
+# In this section, the following functions serve to ultimately create a
 # visualization that compares the proportion of black inmates relative
 # to the black population between 15 to 64 year olds vs the same proportion for
-# white inmates as of the most recent date available with both data. 
-# We also want to see these two variables have a similar or different 
-# relationship depending on the population of a county (very small, small, 
+# white inmates as of the most recent date available with both data.
+# We also want to see these two variables have a similar or different
+# relationship depending on the population of a county (very small, small,
 # medium, large, very large).
-# 
+#
 #----------------------------------------------------------------------------#
 
 #Function for creating the data frame that filters missing proportion values,
 #and make a distinction for the population of a county.
 get_jail_race_data <- function() {
   jail_race_data <- filter(jail, !is.na(white_prison_pop)) %>%
-    
+
     #Keep filtering missing values for our variables of interest
     filter(!is.na(black_prison_pop)) %>%
     filter(!is.na(white_jail_pop)) %>%
     filter(!is.na(black_jail_pop)) %>%
-    
+
     #Make new variables
     mutate(
-      white_inmate_pop = white_jail_pop + white_prison_pop, 
+      white_inmate_pop = white_jail_pop + white_prison_pop,
       black_inmate_pop = black_jail_pop + black_prison_pop
     ) %>%
     mutate(location = paste0(county_name, ", ", state)) %>%
-    
+
     #Create the type of county based on their population. I'll explain in the
     #paragraph why I chose to do a "logarithmic scale" of county populations.
-    mutate(population_type = ifelse(total_pop < 25000, "County Pop: < 25,000", 
+    mutate(population_type = ifelse(total_pop < 25000, "County Pop: < 25,000",
           ifelse(25000 <= total_pop & total_pop < 100000, "County Pop: ≥ 25,000 & < 100K",
           "County Pop: has ≥ 100,000 people")))
   return(jail_race_data)
@@ -237,7 +238,7 @@ plot_jail_white_county <- function() {
     aes(x = year, y = white_inmate_pop)
   ) +
     geom_point() +
-    scale_y_continuous(labels = scales::comma, limits = c(0,30000)) +
+    scale_y_continuous(labels = scales::comma, limits = c(0, 30000)) +
     facet_wrap(~population_type) +
     xlab("Year") +
     ylab("White Inmate Population") +
@@ -260,10 +261,10 @@ factored by the population of the county. "
 
 ## Load data frames for mapping:
 
-#Map codes give us the abbreviation for states. We need them because 
+#Map codes give us the abbreviation for states. We need them because
 #map_data("county") doesn't have them, but our jail data only has abbreviations.
 #So before getting our dataframes, let's make this function to get state codes!
-get_codes <- function(){
+get_codes <- function() {
   map_codes <- read.csv("../source/state_names_and_codes.csv") %>%
     rename(state = State)
   map_codes$state <- str_to_lower(map_codes$state)
@@ -281,29 +282,29 @@ county_locations <- map_data("county") %>%
 
 #Dataframe for latinx jail percentages per county
 get_county_map_data_frame <- function() {
-  
+
   #Filter our datafraame for joining map data
   jail_county_map_data <- jail %>% mutate(county = str_to_lower(
-    
+
     #We also need to str_replace Louisiana since they don't use Counties
     str_replace(str_replace(county_name, " County", ""), " Parish", ""))) %>%
     rename(Code = state) %>%
-    
+
     #Filter missing data for our variables of interest
-    
+
     #Note: States like Rhode Island DO NOT have any data for latinx_jail_pop
     filter(!is.na(latinx_jail_pop)) %>%
     filter(!is.na(latinx_pop_15to64)) %>%
-    
+
     #I found the isZero function from:
     #https://www.rdocumentation.org/packages/R.utils/versions/2.7.0/topics/isZero
     filter(!isZero(latinx_pop_15to64)) %>%
     #Mutate for the latinx proportion variable
     mutate(latinx_jail_perc = latinx_jail_pop / latinx_pop_15to64 * 100) %>%
-    
+
     #Now join with our county locations.
-    inner_join(county_locations, by = c("county","Code")) %>%
-    
+    inner_join(county_locations, by = c("county", "Code")) %>%
+
     #filter for max year given our previous operations
     filter(year == max(year))
   return(jail_county_map_data)
@@ -315,10 +316,10 @@ get_state_map_data_frame <- function() {
   #Use the filters given to us previously
   jail_state_map_data <- get_county_map_data_frame() %>%
     group_by(state) %>%
-    summarize(latinx_jail_perc = mean(latinx_jail_perc, na.rm = TRUE), 
+    summarize(latinx_jail_perc = mean(latinx_jail_perc, na.rm = TRUE),
               year, region, division) %>%
           unique() %>%
-    
+
           #map_data actually refers to states as regions, so
           #we must rename our actual regions to actual_region
           rename(actual_region = region, region = state) %>%
@@ -344,9 +345,9 @@ get_county_map_chart <- function() {
 #I learned about pch and color around the circle,
 #which gives a black border around each circle,
 #from: https://stackoverflow.com/questions/10437442/place-a-border-around-points
-               pch=21, color = "black") +
+               pch = 21, color = "black") +
     coord_map() +
-    
+
   #As required, we use a minimalist theme here. I will use the
   #minimalist theme as mentioned in the textbook
   theme_bw() +
@@ -373,9 +374,9 @@ labs(subtitle = "Percent of Latinx Jail Inmates to Latinx Population",
 #Function for showing latinx jail percentages by state
 get_state_map_chart <- function() {
   map_chart <- ggplot(get_state_map_data_frame()) +
-              
+
       coord_map() +
-      geom_polygon(mapping = aes(x=long, y = lat, group = group, 
+      geom_polygon(mapping = aes(x = long, y = lat, group = group,
                                  color = actual_region,
                                  fill = latinx_jail_perc),
                                   size = 1.25) +
