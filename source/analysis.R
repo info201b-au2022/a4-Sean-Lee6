@@ -226,7 +226,7 @@ ylab("Black Inmate Population") +
     labs(
       subtitle =
         "Relationship between Year and Population of Black Inmates, Grouped by County Population",
-caption = "Figure 3. Chart of the relationship between Year and the Population of Black Inmates. "
+caption = "Figure 3a. Chart of the relationship between Year and the Population of Black Inmates. "
     )
   return(jail_black_plot)
 }
@@ -245,9 +245,7 @@ plot_jail_white_county <- function() {
     labs(
       subtitle =
         "Relationship between Year and Population of White Inmates, Grouped by County Population",
-      caption = "Figure 3. Chart of the relationship between the percent of white inmates relative to the white population between 
-15 to 64 year olds vs the percent of black inmates relative to the black population between 15 to 64 year olds, 
-factored by the population of the county. "
+      caption = "Figure 3b. Chart of the relationship between Year and the Population of White Inmates. "
     )
   return(jail_white_plot)
 }
