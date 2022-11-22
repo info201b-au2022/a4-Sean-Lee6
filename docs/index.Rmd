@@ -58,7 +58,7 @@ plot_jail_pop_by_states(c("NY", "CA", "TX", "FL"))
 We now compare the total jail population growths between four states: New York, California, Texas, and Florida to analyze the question: How does jail population growth differ between liberal states and conservative states? This question is asked in order to see if the political climate of the state affects the incarceration rates of the state. I chose New York, Florida, California, and Texas as my states because I wanted to compare "liberal" states with "conservative" states with around the same population (NY with FL, CA with TX). We see a similar growth rate in jail population between California and Texas. Florida had a significant growth in their jail population, whereas New York has a much less growth rate. A key pattern we see in all four states is a significant increase in the jail population in the late 20-th century, with California, Texas, and Florida in particular having a jail population in 2018 being about four times the their jail population in 1970.
 
 ## Black Inmate Populations are Similar to White Inmate Populations,
-## Despite the US having Five Times The White People to Black
+## Despite the US having Five Times The White Population
 ```{r echo = FALSE, eval = TRUE, message = FALSE}
 plot_jail_black_county()
 plot_jail_white_county()
